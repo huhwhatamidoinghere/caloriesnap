@@ -278,9 +278,11 @@ export default function App() {
 
                     <div className="flex items-center gap-3">
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={dailyCalorieGoalStr}
-                        onChange={(e) => setDailyCalorieGoalStr(e.target.value)}
+                        onChange={(e) => setDailyCalorieGoalStr(e.target.value.replace(/[^0-9]/g, ''))}
                         className={`${inputClass} w-28 text-center`}
                       />
                       <span className="text-sm font-bold text-zinc-400 dark:text-zinc-500">calories / day</span>
