@@ -53,6 +53,9 @@ export default function App() {
   // Journey state
   const [journeyFrom, setJourneyFrom] = useState('');
   const [journeyTo, setJourneyTo] = useState('');
+  const [fromSuggestions, setFromSuggestions] = useState<string[]>([]);
+  const [toSuggestions, setToSuggestions] = useState<string[]>([]);
+  const [isLocating, setIsLocating] = useState(false);
   const [includeTreadmill, setIncludeTreadmill] = useState(false);
   const [journeyPlan, setJourneyPlan] = useState<JourneyPlan | null>(null);
   const [isCalculatingJourney, setIsCalculatingJourney] = useState(false);
@@ -72,6 +75,29 @@ export default function App() {
       setDailyCalorieGoal(result);
       goalInputRef.current.value = String(result);
     }
+  };
+
+  const searchLocation = async (query: string, setSuggestions: (s: string[]) => void) => {
+    if (query.length < 3) { setSuggestions([]); return; }
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=4`);
+      const data = await res.json();
+      setSuggestions(data.map((r: any) => r.display_name));
+    } catch { setSuggestions([]); }
+  };
+
+  const useMyLocation = async () => {
+    if (!navigator.geolocation) { setError('Geolocation not supported'); return; }
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      try {
+        const { latitude, longitude } = pos.coords;
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+        const data = await res.json();
+        setJourneyFrom(data.display_name || `${latitude}, ${longitude}`);
+      } catch { setError('Could not get location name'); }
+      setIsLocating(false);
+    }, () => { setError('Location access denied'); setIsLocating(false); });
   };
 
   const remainingCalories = dailyCalorieGoal - consumedCalories;
@@ -643,20 +669,50 @@ export default function App() {
                   <div className={`${cardClass} p-6 rounded-3xl shadow-sm space-y-6`}>
                     <div className="space-y-4">
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase">From</label>
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase">From</label>
+                          <button onClick={useMyLocation} className="text-xs font-bold text-amber-500 hover:text-amber-600 flex items-center gap-1">
+                            {isLocating ? <RefreshCw className="w-3 h-3 animate-spin" /> : <MapPin className="w-3 h-3" />}
+                            {isLocating ? 'Locating...' : 'Use my location'}
+                          </button>
+                        </div>
                         <div className="relative">
                           <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                          <input type="text" placeholder="Starting point" value={journeyFrom} onChange={(e) => setJourneyFrom(e.target.value)}
+                          <input type="text" placeholder="Starting point" value={journeyFrom}
+                            onChange={(e) => { setJourneyFrom(e.target.value); searchLocation(e.target.value, setFromSuggestions); }}
+                            onBlur={() => setTimeout(() => setFromSuggestions([]), 150)}
                             className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl pl-12 pr-4 py-3 text-zinc-900 dark:text-zinc-100 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all" />
                         </div>
+                        {fromSuggestions.length > 0 && (
+                          <div className="rounded-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden shadow-lg">
+                            {fromSuggestions.map((s, i) => (
+                              <button key={i} onMouseDown={() => { setJourneyFrom(s); setFromSuggestions([]); }}
+                                className="w-full text-left px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 hover:bg-amber-50 dark:hover:bg-zinc-800 border-b border-zinc-100 dark:border-zinc-800 last:border-0 transition-colors">
+                                {s}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase">To</label>
                         <div className="relative">
                           <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500" />
-                          <input type="text" placeholder="Destination" value={journeyTo} onChange={(e) => setJourneyTo(e.target.value)}
+                          <input type="text" placeholder="Destination" value={journeyTo}
+                            onChange={(e) => { setJourneyTo(e.target.value); searchLocation(e.target.value, setToSuggestions); }}
+                            onBlur={() => setTimeout(() => setToSuggestions([]), 150)}
                             className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl pl-12 pr-4 py-3 text-zinc-900 dark:text-zinc-100 font-bold focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all" />
                         </div>
+                        {toSuggestions.length > 0 && (
+                          <div className="rounded-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden shadow-lg">
+                            {toSuggestions.map((s, i) => (
+                              <button key={i} onMouseDown={() => { setJourneyTo(s); setToSuggestions([]); }}
+                                className="w-full text-left px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 hover:bg-amber-50 dark:hover:bg-zinc-800 border-b border-zinc-100 dark:border-zinc-800 last:border-0 transition-colors">
+                                {s}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
 
