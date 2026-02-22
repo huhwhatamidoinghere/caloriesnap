@@ -283,8 +283,12 @@ export default function App() {
                         inputMode="numeric"
                         pattern="[0-9]*"
                         value={dailyCalorieGoalStr}
-                        onChange={(e) => setDailyCalorieGoalStr(e.target.value.replace(/[^0-9]/g, ''))}
-                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/[^0-9]/g, '');
+                          const parsed = parseInt(raw, 10);
+                          setDailyCalorieGoalStr(raw === '' ? '' : isNaN(parsed) ? '' : String(parsed));
+                        }}
+                        onFocus={(e) => { const t = e.target; setTimeout(() => t.select(), 0); }}
                         className={`${inputClass} w-28 text-center`}
                       />
                       <span className="text-sm font-bold text-zinc-400 dark:text-zinc-500">calories / day</span>
