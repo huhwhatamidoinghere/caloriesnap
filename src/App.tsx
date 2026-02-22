@@ -68,7 +68,7 @@ export default function App() {
   const handleGoalBlur = () => {
     if (goalInputRef.current) {
       const parsed = parseInt(goalInputRef.current.value, 10);
-      const result = isNaN(parsed) || parsed <= 0 ? dailyCalorieGoal : parsed;
+      const result = isNaN(parsed) || parsed <= 0 ? dailyCalorieGoal : Math.min(parsed, 9999);
       setDailyCalorieGoal(result);
       goalInputRef.current.value = String(result);
     }
@@ -291,6 +291,8 @@ export default function App() {
                         ref={goalInputRef}
                         type="number"
                         defaultValue={dailyCalorieGoal}
+                        maxLength={4}
+                        max={9999}
                         onFocus={() => { setTimeout(() => goalInputRef.current?.select(), 0); }}
                         onBlur={handleGoalBlur}
                         className={`${inputClass} w-28 text-center`}
