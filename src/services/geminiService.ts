@@ -19,15 +19,14 @@ export interface NutritionAnalysis {
 }
 
 export async function analyzeFoodImage(
-  base64Image: string, 
-  minCalories?: number, 
-  maxCalories?: number
+  base64Image: string,
+  remainingCalories?: number
 ): Promise<NutritionAnalysis> {
   const model = "gemini-3-flash-preview";
-  
+
   let goalPrompt = "";
-  if (minCalories !== undefined && maxCalories !== undefined) {
-    goalPrompt = `The user's target calorie range for this meal is ${minCalories} to ${maxCalories} calories. If the current meal is outside this range, provide specific advice on what to remove, reduce, or replace to meet this goal.`;
+  if (remainingCalories !== undefined) {
+    goalPrompt = `The user has ${remainingCalories} calories remaining for today. If this meal would exceed that, provide specific advice on what to remove, reduce, or replace to stay within their daily goal.`;
   }
 
   const response = await ai.models.generateContent({
