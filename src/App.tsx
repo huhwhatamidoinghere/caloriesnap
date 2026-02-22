@@ -64,6 +64,16 @@ export default function App() {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const goalInputRef = useRef<HTMLInputElement>(null);
+
+  const handleGoalBlur = () => {
+    if (goalInputRef.current) {
+      const parsed = parseInt(goalInputRef.current.value.replace(/[^0-9]/g, ''), 10);
+      const result = isNaN(parsed) || parsed <= 0 ? '2000' : String(parsed);
+      setDailyCalorieGoalStr(result);
+      goalInputRef.current.value = result;
+    }
+  };
 
   const remainingCalories = dailyCalorieGoal - consumedCalories;
   const progressPercent = Math.min((consumedCalories / dailyCalorieGoal) * 100, 100);
@@ -279,16 +289,13 @@ export default function App() {
 
                     <div className="flex items-center gap-3">
                       <input
+                        ref={goalInputRef}
                         type="text"
                         inputMode="numeric"
                         pattern="[0-9]*"
-                        value={dailyCalorieGoalStr}
-                        onChange={(e) => {
-                          const raw = e.target.value.replace(/[^0-9]/g, '');
-                          const parsed = parseInt(raw, 10);
-                          setDailyCalorieGoalStr(raw === '' ? '' : isNaN(parsed) ? '' : String(parsed));
-                        }}
-                        onFocus={(e) => { const t = e.target; setTimeout(() => t.select(), 0); }}
+                        defaultValue={dailyCalorieGoalStr}
+                        onFocus={(e) => setTimeout(() => e.target.select(), 50)}
+                        onBlur={handleGoalBlur}
                         className={`${inputClass} w-28 text-center`}
                       />
                       <span className="text-sm font-bold text-zinc-400 dark:text-zinc-500">calories / day</span>
