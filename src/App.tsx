@@ -28,11 +28,10 @@ export default function App() {
   const [mealLogged, setMealLogged] = useState(false);
 
   // Calorie tracking
-  const [dailyCalorieGoalStr, setDailyCalorieGoalStr] = useState<string>(() => {
-    const stored = localStorage.getItem('dailyCalorieGoal');
-    return stored && stored !== '0' ? stored : '2000';
+  const [dailyCalorieGoal, setDailyCalorieGoal] = useState<number>(() => {
+    const parsed = parseInt(localStorage.getItem('dailyCalorieGoal') || '2000', 10);
+    return isNaN(parsed) || parsed <= 0 ? 2000 : parsed;
   });
-  const dailyCalorieGoal = parseInt(dailyCalorieGoalStr) || 0;
   const [consumedCalories, setConsumedCalories] = useState<number>(loadConsumedCalories);
 
   // Dark mode
@@ -68,10 +67,10 @@ export default function App() {
 
   const handleGoalBlur = () => {
     if (goalInputRef.current) {
-      const parsed = parseInt(goalInputRef.current.value.replace(/[^0-9]/g, ''), 10);
-      const result = isNaN(parsed) || parsed <= 0 ? '2000' : String(parsed);
-      setDailyCalorieGoalStr(result);
-      goalInputRef.current.value = result;
+      const parsed = parseInt(goalInputRef.current.value, 10);
+      const result = isNaN(parsed) || parsed <= 0 ? dailyCalorieGoal : parsed;
+      setDailyCalorieGoal(result);
+      goalInputRef.current.value = String(result);
     }
   };
 
@@ -85,8 +84,8 @@ export default function App() {
   }, [darkMode]);
 
   useEffect(() => {
-    localStorage.setItem('dailyCalorieGoal', dailyCalorieGoalStr);
-  }, [dailyCalorieGoalStr]);
+    localStorage.setItem('dailyCalorieGoal', String(dailyCalorieGoal));
+  }, [dailyCalorieGoal]);
 
   useEffect(() => {
     localStorage.setItem('calorieLog', JSON.stringify({ date: getTodayKey(), calories: consumedCalories }));
@@ -290,11 +289,9 @@ export default function App() {
                     <div className="flex items-center gap-3">
                       <input
                         ref={goalInputRef}
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        defaultValue={dailyCalorieGoalStr}
-                        onFocus={(e) => setTimeout(() => e.target.select(), 50)}
+                        type="number"
+                        defaultValue={dailyCalorieGoal}
+                        onFocus={() => { if (goalInputRef.current) goalInputRef.current.value = ''; }}
                         onBlur={handleGoalBlur}
                         className={`${inputClass} w-28 text-center`}
                       />
