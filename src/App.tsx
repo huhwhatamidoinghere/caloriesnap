@@ -291,7 +291,7 @@ export default function App() {
                         ref={goalInputRef}
                         type="number"
                         defaultValue={dailyCalorieGoal}
-                        onFocus={() => { if (goalInputRef.current) goalInputRef.current.value = ''; }}
+                        onFocus={() => { setTimeout(() => goalInputRef.current?.select(), 0); }}
                         onBlur={handleGoalBlur}
                         className={`${inputClass} w-28 text-center`}
                       />
