@@ -28,9 +28,10 @@ export default function App() {
   const [mealLogged, setMealLogged] = useState(false);
 
   // Calorie tracking
-  const [dailyCalorieGoalStr, setDailyCalorieGoalStr] = useState<string>(() =>
-    localStorage.getItem('dailyCalorieGoal') || '2000'
-  );
+  const [dailyCalorieGoalStr, setDailyCalorieGoalStr] = useState<string>(() => {
+    const stored = localStorage.getItem('dailyCalorieGoal');
+    return stored && stored !== '0' ? stored : '2000';
+  });
   const dailyCalorieGoal = parseInt(dailyCalorieGoalStr) || 0;
   const [consumedCalories, setConsumedCalories] = useState<number>(loadConsumedCalories);
 
@@ -283,6 +284,7 @@ export default function App() {
                         pattern="[0-9]*"
                         value={dailyCalorieGoalStr}
                         onChange={(e) => setDailyCalorieGoalStr(e.target.value.replace(/[^0-9]/g, ''))}
+                        onFocus={(e) => e.target.select()}
                         className={`${inputClass} w-28 text-center`}
                       />
                       <span className="text-sm font-bold text-zinc-400 dark:text-zinc-500">calories / day</span>
