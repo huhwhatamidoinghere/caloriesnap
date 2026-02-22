@@ -1,0 +1,5 @@
+{
+  "name": "CalorieSnap",
+  "description": "Snap a photo of your meal to get an instant calorie estimate and nutritional breakdown.",
+  "requestFramePermissions": ["camera"]
+}
