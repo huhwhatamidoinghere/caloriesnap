@@ -49,7 +49,6 @@ export async function analyzeFoodImage(
     ],
     config: {
       thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
-      tools: [{ googleSearch: {} }],
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
