@@ -28,9 +28,10 @@ export default function App() {
   const [mealLogged, setMealLogged] = useState(false);
 
   // Calorie tracking
-  const [dailyCalorieGoal, setDailyCalorieGoal] = useState<number>(() =>
-    parseInt(localStorage.getItem('dailyCalorieGoal') || '2000')
+  const [dailyCalorieGoalStr, setDailyCalorieGoalStr] = useState<string>(() =>
+    localStorage.getItem('dailyCalorieGoal') || '2000'
   );
+  const dailyCalorieGoal = parseInt(dailyCalorieGoalStr) || 0;
   const [consumedCalories, setConsumedCalories] = useState<number>(loadConsumedCalories);
 
   // Dark mode
@@ -73,8 +74,8 @@ export default function App() {
   }, [darkMode]);
 
   useEffect(() => {
-    localStorage.setItem('dailyCalorieGoal', String(dailyCalorieGoal));
-  }, [dailyCalorieGoal]);
+    localStorage.setItem('dailyCalorieGoal', dailyCalorieGoalStr);
+  }, [dailyCalorieGoalStr]);
 
   useEffect(() => {
     localStorage.setItem('calorieLog', JSON.stringify({ date: getTodayKey(), calories: consumedCalories }));
@@ -278,8 +279,8 @@ export default function App() {
                     <div className="flex items-center gap-3">
                       <input
                         type="number"
-                        value={dailyCalorieGoal}
-                        onChange={(e) => setDailyCalorieGoal(Number(e.target.value))}
+                        value={dailyCalorieGoalStr}
+                        onChange={(e) => setDailyCalorieGoalStr(e.target.value)}
                         className={`${inputClass} w-28 text-center`}
                       />
                       <span className="text-sm font-bold text-zinc-400 dark:text-zinc-500">calories / day</span>
