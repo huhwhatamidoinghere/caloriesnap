@@ -48,6 +48,7 @@ export async function analyzeFoodImage(
     ],
     config: {
       thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
+      temperature: 0,
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -182,6 +183,7 @@ export async function calculateJourney(params: {
     contents: [{ parts: [{ text: prompt }] }],
     config: {
       thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
+      temperature: 0,
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -245,6 +247,7 @@ export async function generateWorkoutPlan(params: {
     contents: [{ parts: [{ text: prompt }] }],
     config: {
       thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
+      temperature: 0,
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
